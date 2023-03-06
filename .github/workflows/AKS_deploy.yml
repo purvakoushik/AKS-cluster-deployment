@@ -1,0 +1,35 @@
+name: deploy to AKS
+on: 
+  workflow_dispatch:
+    
+env:
+  cluster_name: "purva-AKScluster"
+  cluster_RG: "KoushikPurva-RG"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: making code available to runner
+        uses: actions/checkout@v3
+      
+      - name: installing kubectl tool in runner
+        uses: Azure/setup-kubectl@v1
+        with:
+          version: latest
+
+      - name: logging into the cluster_name
+        uses: Azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'  #Azure AKS credential token can be found in ~/home/<user_name>/.kube/config(file) of AKS connect
+          cluster-name: '${{ ENV.cluster_name }}'
+          resource-group: '${{ ENV.cluster_RG }}'
+        id: login
+
+      - name: AKS deploy
+        run: |
+          cat sampleapp.yml
+
+          sleep 45s
+
+          kubectl get pods -n myapplication
